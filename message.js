@@ -4,7 +4,6 @@ const prompt = require('prompt-sync')();
 const ObjectsToCsv = require('objects-to-csv')
 const fs = require('fs');
 const readline = require('readline');
-const csv = require('csv-parser');
 const neatCsv = require('neat-csv');
 
 const USERNAME_SELECTOR = '#email';
@@ -30,7 +29,7 @@ function message() {
     const MESSAGE_TO_SEND = prompt("Enter message to send : ");
     console.log(`Message to send is ${MESSAGE_TO_SEND}`);
 
-    var browser =  await puppeteer.launch({headless:false});
+    var browser =  await puppeteer.launch({headless:true});
     var page = await browser.newPage();
     await page.setDefaultNavigationTimeout(1000000);
     await page.setViewport({ width: 1000, height: 600 });

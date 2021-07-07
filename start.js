@@ -4,7 +4,6 @@ const prompt = require('prompt-sync')();
 const ObjectsToCsv = require('objects-to-csv')
 const fs = require('fs');
 const readline = require('readline');
-const csv = require('csv-parser');
 const neatCsv = require('neat-csv');
 
 const USERNAME_SELECTOR = '#email';
@@ -32,7 +31,7 @@ function run() {
     return new Promise(async (resolve, reject) => {
     try {
 
-    var browser =  await puppeteer.launch({headless:false});
+    var browser =  await puppeteer.launch({headless:true});
     var page = await browser.newPage();
     await page.setDefaultNavigationTimeout(1000000);
     await page.setViewport({ width: 1000, height: 600 });
@@ -83,6 +82,7 @@ function run() {
 
     //go to profile of first result
     await page.waitForNavigation();
+    await page.waitForTimeout(600);
 
     //produces result of the search
     //TODO: improve to include everything when scroll down
@@ -113,6 +113,7 @@ function run() {
         followers: followers,
         url: communities[i].url,
       });
+      console.log(communities[i].text + " added");
     }
 
   }
