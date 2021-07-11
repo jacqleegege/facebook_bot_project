@@ -22,6 +22,8 @@ function run() {
     // dom element selectors for login page
     const MESSAGE_TO_SEND = prompt("Enter message to send : ");
     console.log(`Message to send is ${MESSAGE_TO_SEND}.`);
+    console.log("Would you like to send message now?");
+    const SEND_MESSAGE = prompt("(No is for testing in case you wanna watch bot in action!!) (Y/N) ");
     console.log("Note: you'll need an input file listing each university. Please make sure that all the words are capitalized, and one uni per line!");
     const INPUT_FILE = prompt("Enter file name (please make sure that file is in the folder!) : ");
     console.log(`Input file is ${INPUT_FILE}.`);
@@ -126,16 +128,16 @@ function run() {
 
     //todo: figure out a way to take coms as input
   const continuing = prompt("Would you like to continue? (Y/N): ");
-  if (continuing.toString().trim() === 'N') {
+  if (continuing.toString().trim() === 'N' || continuing.toString().trim() === 'n') {
     console.log("You can always type 'node message' if you want to immediately start messaging! :D");
     console.log ("Closing process, have a great day!!");
     browser.close();
     return;
   }
   const change = prompt("Would you like to make changes to the message list? (Y/N): ");
-  if (change.toString().trim() === 'Y') {
+  if (change.toString().trim() === 'Y' || change.toString().trim() === 'y') {
     console.log("Note: when editing comsList.csv, please do not leave any empty line or space in between, or I'll crash!")
-    const changed = prompt("Please make your changes now to comsList.csv and click any button to continue");
+    const changed = prompt("Please make your changes now to comsList.csv and click enter to continue");
   }
 
   console.log("Messaging all the pages in file comsList.csv...");
@@ -146,6 +148,9 @@ function run() {
       return
     }
     const communitiesToMessage = await neatCsv(data);
+    if (SEND_MESSAGE.toString().trim() === 'N' || SEND_MESSAGE.toString().trim() === 'n') {
+      console.log("Well not actually messaging, but ya know ;)");
+    }
     for (var i = 0; i < communitiesToMessage.length; i++) {
       await page.goto(communitiesToMessage[i].url);
 
@@ -160,12 +165,17 @@ function run() {
       await page.waitForSelector(TEXTBOX_SELECTOR);
       await page.type(TEXTBOX_SELECTOR, MESSAGE_TO_SEND);
 
-      // the dangerous 'send button'
-      // await (await page.$(TEXTBOX_SELECTOR)).press('\n');
+      if (SEND_MESSAGE.toString().trim() === 'N' || SEND_MESSAGE.toString().trim() === 'n') {
+        await page.click(CLOSE_CHAT_BTN_SELECTOR);
+        await page.waitForSelector(OK_BTN_SELECTOR);
+        await page.click(OK_BTN_SELECTOR);
+      } else {
+        await (await page.$(TEXTBOX_SELECTOR)).press('\n');
+        await page.click(CLOSE_CHAT_BTN_SELECTOR);
+      }
 
-      await page.click(CLOSE_CHAT_BTN_SELECTOR);
-      await page.waitForSelector(OK_BTN_SELECTOR);
-      await page.click(OK_BTN_SELECTOR);
+      console.log(communitiesToMessage[i].name + " messaged!");
+
     }
 
     console.log("Messaging process completed! Have a nice day :)")

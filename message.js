@@ -23,13 +23,14 @@ function message() {
 
     console.log('Messages will be sent to communities listed in comsList.csv!');
     console.log('Note : If comsLIst.csv is not created yet, please exit this code by ctrl-C, and type node start');
-    const wait = prompt('Click on any button to continue! If comsList.csv is not finalized yet, now is your chance :D');
-
+    const wait = prompt('Click enter to continue! If comsList.csv is not finalized yet, now is your chance :D');
 
     const MESSAGE_TO_SEND = prompt("Enter message to send : ");
     console.log(`Message to send is ${MESSAGE_TO_SEND}`);
+    console.log("Would you like to send message now?");
+    const SEND_MESSAGE = prompt("(No is for testing in case you wanna watch bot in action!!) (Y/N) ");
 
-    var browser =  await puppeteer.launch({headless:true});
+    var browser =  await puppeteer.launch({headless:false});
     var page = await browser.newPage();
     await page.setDefaultNavigationTimeout(1000000);
     await page.setViewport({ width: 1000, height: 600 });
@@ -55,9 +56,12 @@ function message() {
         return
       }
       const communitiesToMessage = await neatCsv(data);
+
+      if (SEND_MESSAGE.toString().trim() === 'N' || SEND_MESSAGE.toString().trim() === 'n') {
+        console.log("Well not actually messaging, but ya know ;)");
+      }
       for (var i = 0; i < communitiesToMessage.length; i++) {
         await page.goto(communitiesToMessage[i].url);
-
 
         //click on message button
         // await page.click(MESSAGE_BTN_SELECTOR);
@@ -69,12 +73,16 @@ function message() {
         await page.waitForSelector(TEXTBOX_SELECTOR);
         await page.type(TEXTBOX_SELECTOR, MESSAGE_TO_SEND);
 
-        // the dangerous 'send button'
-        // await (await page.$(TEXTBOX_SELECTOR)).press('\n');
+        if (SEND_MESSAGE.toString().trim() === 'N' || SEND_MESSAGE.toString().trim() === 'n') {
+          await page.click(CLOSE_CHAT_BTN_SELECTOR);
+          await page.waitForSelector(OK_BTN_SELECTOR);
+          await page.click(OK_BTN_SELECTOR);
+        } else {
+          await (await page.$(TEXTBOX_SELECTOR)).press('\n');
+          await page.click(CLOSE_CHAT_BTN_SELECTOR);
+        }
 
-        await page.click(CLOSE_CHAT_BTN_SELECTOR);
-        await page.waitForSelector(OK_BTN_SELECTOR);
-        await page.click(OK_BTN_SELECTOR);
+        console.log(communitiesToMessage[i].name + " messaged!");
       }
       console.log("Messaging process completed! Have a nice day :)")
       console.log("Closing browser..")
