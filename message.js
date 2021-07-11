@@ -30,7 +30,7 @@ function message() {
     console.log("Would you like to send message now?");
     const SEND_MESSAGE = prompt("(No is for testing in case you wanna watch bot in action!!) (Y/N) ");
 
-    var browser =  await puppeteer.launch({headless:false});
+    var browser =  await puppeteer.launch({headless:true});
     var page = await browser.newPage();
     await page.setDefaultNavigationTimeout(1000000);
     await page.setViewport({ width: 1000, height: 600 });
