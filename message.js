@@ -38,6 +38,9 @@ function message() {
     await context.overridePermissions("https://www.facebook.com", ['notifications']);
     await page.goto("https://www.facebook.com");
 
+    //cookie problem
+    await page.waitForSelector('div._9o-r button:nth-child(2)');
+    await page.click('div._9o-r button:nth-child(2)');
 
     //logging in
     console.log('Logging in..');
