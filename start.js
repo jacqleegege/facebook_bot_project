@@ -15,7 +15,7 @@ const COMMUNITY_FILTER = '&filters=eyJjYXRlZ29yeTowIjoie1wibmFtZVwiOlwicGFnZXNfY
 const TEXTBOX_SELECTOR = 'div.notranslate._5rpu';
 const CLOSE_CHAT_BTN_SELECTOR = '[aria-label="Close chat"][role="button"]';
 const OK_BTN_SELECTOR = '[aria-label="OK"][role="button"]';
-const FOLLOWERS_SELECTOR = 'div.taijpn5t.cbu4d94t.j83agx80 > div > div > div > div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.cbu4d94t.g5gj957u.d2edcug0.hpfvmrgz.rj1gh0hx.buofh1pr.o8rfisnq.p8fzw8mz.pcp91wgn.iuny7tx3.ipjc6fyt > div > div > span > span';
+const FOLLOWERS_SELECTOR = 'div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.cbu4d94t.g5gj957u.d2edcug0.hpfvmrgz.rj1gh0hx.buofh1pr.o8rfisnq.p8fzw8mz.pcp91wgn.iuny7tx3.ipjc6fyt > div > div > span > span';
 
 
 function run() {
@@ -109,13 +109,14 @@ function run() {
     for (var i = 0; i < communities.length; i++) {
       page.goto(communities[i].url);
       await page.waitForNavigation();
-      let followers = await page.evaluate((FOLLOWERS_SELECTOR) => {
+      await page.waitForSelector(FOLLOWERS_SELECTOR);
+      let likes = await page.evaluate((FOLLOWERS_SELECTOR) => {
         let follows = document.querySelector(FOLLOWERS_SELECTOR).textContent;
         return follows;
       }, FOLLOWERS_SELECTOR);
       comsData.push({
         name: communities[i].text,
-        followers: followers,
+        likes: likes,
         url: communities[i].url,
       });
       console.log(communities[i].text + " added");
