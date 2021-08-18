@@ -39,7 +39,7 @@ function run() {
     return new Promise(async (resolve, reject) => {
     try {
 
-    var browser =  await puppeteer.launch({headless:false});
+    var browser =  await puppeteer.launch({headless:true});
     var page = await browser.newPage();
     await page.setDefaultNavigationTimeout(1000000);
     await page.setViewport({ width: 1000, height: 600 });
@@ -47,9 +47,9 @@ function run() {
     await context.overridePermissions("https://www.facebook.com", ['notifications']);
     await page.goto("https://www.facebook.com");
 
-    // //cookie problem
-    // await page.waitForSelector(COOKIES_SELECTOR);
-    // await page.click(COOKIES_SELECTOR);
+    //cookie problem
+    await page.waitForSelector(COOKIES_SELECTOR);
+    await page.click(COOKIES_SELECTOR);
 
     //logging in
     console.log("Logging in..");
