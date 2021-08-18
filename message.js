@@ -68,6 +68,7 @@ function message() {
 
         //click on message button
         // await page.click(MESSAGE_BTN_SELECTOR);
+        await page.waitForXPath(MESSAGE_BTN_SELECTOR);
         await page.evaluate((MESSAGE_BTN_SELECTOR) => {
           var messageElement = document.evaluate(MESSAGE_BTN_SELECTOR, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
           messageElement.click();
