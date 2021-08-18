@@ -17,6 +17,8 @@ const CLOSE_CHAT_BTN_SELECTOR = '[aria-label="Close chat"][role="button"]';
 const OK_BTN_SELECTOR = '[aria-label="OK"][role="button"]';
 const FOLLOWERS_SELECTOR = 'div.rq0escxv.l9j0dhe7.du4w35lb.j83agx80.cbu4d94t.g5gj957u.d2edcug0.hpfvmrgz.rj1gh0hx.buofh1pr.o8rfisnq.p8fzw8mz.pcp91wgn.iuny7tx3.ipjc6fyt > div > div > span > span';
 const COOKIES_SELECTOR = 'div._9o-r button:nth-child(2)';
+const UNI_NAME_FILE = 'uni.txt';
+const SOC_NAME_FILE = 'soc.txt';
 
 function run() {
     // dom element selectors for login page
@@ -26,14 +28,11 @@ function run() {
     const SEND_MESSAGE = prompt("(No is for testing in case you wanna watch bot in action!!) (Y/N) ");
     console.log("Note: you'll need 2 files listing each university and societies respectively. Please make sure that all the words are capitalized, and one uni per line!");
     console.log("Additionally, please make sure that they are all in the same folder!");
-    const UNI_NAME_FILE = prompt("Enter file name for list of universities : ");
-    console.log(`Input file is ${UNI_NAME_FILE}.`);
-    const SOC_NAME_FILE = prompt("Enter file name for types of societies : ");
-    console.log(`Input file is ${SOC_NAME_FILE}.`);
+    console.log(`Input files are ${UNI_NAME_FILE} and ${SOC_NAME_FILE}.`);
     console.log("Note: if there hasn't been any response from the terminal, that means something is wrong! Please ctrl-C and restart!")
 
-    var num_searches = 3;
-    console.log("Please choose whether to produce all search results or only the first 3.");
+    var num_searches = 2;
+    console.log("Please choose whether to produce all search results or only the first 2.");
     const searches = prompt("Would you like to add all search results? (Y/N) : ")
 
     return new Promise(async (resolve, reject) => {
@@ -129,21 +128,31 @@ function run() {
         num_searches = communities.length;
       }
 
+      var weird_sites = 0;
+
       //comsData contains name, followers, and url for each community
       for (var i = 0; i < num_searches; i++) {
         page.goto(communities[i].url);
-        await page.waitForNavigation();
-        await page.waitForSelector(FOLLOWERS_SELECTOR);
-        let likes = await page.evaluate((FOLLOWERS_SELECTOR) => {
-          let follows = document.querySelector(FOLLOWERS_SELECTOR).textContent;
-          return follows;
-        }, FOLLOWERS_SELECTOR);
-        comsData.push({
-          name: communities[i].text,
-          likes: likes,
-          url: communities[i].url,
-        });
-        console.log(communities[i].text + " added");
+        await page.waitForNavigation({waitUntil: 'networkidle0'});
+
+        const exists = !! await page.$(FOLLOWERS_SELECTOR);
+
+        if (exists) {
+          await page.waitForSelector(FOLLOWERS_SELECTOR);
+          let likes = await page.evaluate((FOLLOWERS_SELECTOR) => {
+            let follows = document.querySelector(FOLLOWERS_SELECTOR).textContent;
+            return follows;
+          }, FOLLOWERS_SELECTOR);
+          comsData.push({
+            name: communities[i].text,
+            likes: likes,
+            url: communities[i].url,
+          });
+          console.log(communities[i].text + " added");
+        } else {
+          weird_sites++;
+          console.log(communities[i].text + " not added, kinda weird :/")
+        }
       }
     }
   }
@@ -153,7 +162,7 @@ function run() {
   const csv = new ObjectsToCsv(comsData);
   await csv.toDisk('./comsList.csv', { append: true });
   console.log('comsList.csv has been filled(or produced if not already)');
-
+  console.log(`A total of ${weird_sites} unlogged sites`);
     //todo: figure out a way to take coms as input
   const continuing = prompt("Would you like to continue? (Y/N): ");
   if (continuing.toString().trim() === 'N' || continuing.toString().trim() === 'n') {
@@ -185,6 +194,7 @@ function run() {
 
       //click on message button
       // await page.click(MESSAGE_BTN_SELECTOR);
+      await page.waitForXPath(MESSAGE_BTN_SELECTOR);
       await page.evaluate((MESSAGE_BTN_SELECTOR) => {
         var messageElement = document.evaluate(MESSAGE_BTN_SELECTOR, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
         messageElement.click();
